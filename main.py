@@ -10,18 +10,39 @@ from datetime import datetime
 LOCATION = "Huelva, Spain"
 
 KEYWORDS = [
-    "Técnico informático", "Técnico/a informático/a",
-    "Administrador de sistemas", "System Administrator",
-    "Técnico de sistemas y redes", "Soporte TI",
-    "Helpdesk", "Service Desk",
-    "Windows", "Linux", "VMware", "Virtualización",
-    "Técnico de Redes", "Network Engineer", "CCNA",
-    "Ingeniero de Redes", "Técnico de Comunicaciones",
-    "Administrador IT", "Responsable IT"
+    # --- TÍTULOS CLÁSICOS (Español/Inglés) ---
+    "Administrador de Sistemas", "System Administrator", "SysAdmin",
+    "Técnico de Sistemas", "Systems Technician",
+    "Ingeniero de Sistemas", "Systems Engineer",
+    "Analista de Sistemas", "System Analyst",
+    "Administrador IT", "IT Administrator",
+    "Responsable de Sistemas", "IT Manager",
+    "Coordinador TI", "IT Coordinator",
+    "Técnico de Infraestructura", "Infrastructure Engineer",
+
+    # --- REDES Y COMUNICACIONES ---
+    "Administrador de Redes", "Network Administrator",
+    "Ingeniero de Redes", "Network Engineer",
+    "Técnico de Redes", "Network Technician",
+    "Técnico de Comunicaciones",
+    "CCNA", "CCNP", "Cisco", "Fortinet", "Mikrotik", "Palo Alto",
+    
+    # --- SOPORTE NIVEL 2/3 (Suelen ser SysAdmins camuflados) ---
+    "Soporte Técnico N2", "Soporte Nivel 2", "Level 2 Support",
+    "Soporte Técnico N3", "Soporte Nivel 3", "Level 3 Support",
+    "Helpdesk Avanzado", "Service Desk Analyst",
+    "Técnico de Campo", "Field Technician", # Muy común en Huelva para dar servicio a varias sedes
+    
+    # --- TECNOLOGÍAS CLAVE (A veces el título es la tecnología) ---
+    "Windows Server", "Active Directory", "Directorio Activo",
+    "Linux", "Red Hat", "Debian", "Ubuntu Server",
+    "Virtualización", "VMware", "Hyper-V", "Citrix",
+    "Office 365", "Microsoft 365", "Exchange",
+    "Azure", "AWS", "Cloud",
+    "Backup", "Veeam",
+    "SQL Server", "Base de Datos"
 ]
 
-# Filtros de exclusión (Actualizados con tu feedback)
-# Filtros de exclusión (Refinado: Anti-PRL)
 PALABRAS_EXCLUIR = [
     # Basura general
     "Beca", "Prácticas", "Comercial", "Ventas", "Sales",
