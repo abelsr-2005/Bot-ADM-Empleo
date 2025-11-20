@@ -66,7 +66,7 @@ def buscar_y_enviar():
 
     try:
         jobs = scrape_jobs(
-            site_name=["linkedin", "indeed", "infojobs"],
+            site_name=["linkedin", "indeed", "glassdoor"],
             search_term=" OR ".join(KEYWORDS),
             location=LOCATION,
             results_wanted=10,
