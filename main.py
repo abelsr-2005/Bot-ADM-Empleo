@@ -32,15 +32,28 @@ KEYWORDS = [
 ]
 
 # Filtros (Anti-Ruido y Anti-PRL)
+# Filtros (Anti-Ruido, Anti-PRL y Anti-Industrial)
 PALABRAS_EXCLUIR = [
+    # 1. Basura general y Ventas
     "Beca", "Prácticas", "Comercial", "Ventas", "Sales",
     "Programador", "Developer", "Frontend", "Backend", "Junior",
-    "Construcción", "Obra", "Peón", "Albañil", "Fontanero",
-    "Mecánico", "Electromecánico", "Climatización",
+    "Administrativo", "Recepcionista", "Call Center",
+    
+    # 2. Construcción y Oficios (Español e Inglés)
+    "Construcción", "Construction", "Obra", "Site", "Civil",
+    "Peón", "Albañil", "Fontanero", "Mecánico", "Electromecánico",
+    "Climatización", "Welder", "Soldador",
+    
+    # 3. Industria y Energía (Típico en Huelva)
     "Producción", "Operador", "Mantenimiento industrial",
+    "O&M", "Planta", "Industrial", "Fotovoltaica", "Solar",
+    
+    # 4. Servicios y Educación
     "Domicilio", "Ayuda", "Auxiliar", "Enfermero", "Limpieza",
     "Dependiente", "Repartidor", "Mozo", "Conductor",
-    "Administrativo", "Recepcionista", "Call Center",
+    "Profesor", "Teacher", "Docente", "Formador",
+    
+    # 5. Anti-PRL (Prevención de Riesgos)
     "PRL", "Riesgos", "Preventivo", "Prevención", "Salud", "Laborales"
 ]
 
