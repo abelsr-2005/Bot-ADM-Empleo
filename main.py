@@ -6,14 +6,45 @@ from jobspy import scrape_jobs
 import pandas as pd
 
 # --- CONFIGURACIÓN ---
-KEYWORDS = ["Administrador de Sistemas", "System Administrator", "Técnico Sistemas", "Informático", "Soporte TI"]
-LOCATION = "Huelva, Spain"
+# --- CONFIGURACIÓN ---
+KEYWORDS = [
+    "Técnico informático",
+    "Técnico/a informático/a",
+    "Administrador de sistemas informáticos",
+    "Administrador/a de sistemas informáticos",
+    "Técnico de sistemas y redes",
+    "Técnico de soporte informático",
+    "Técnico de soporte microinformático",
+    "Administrador de sistemas",
+    "Windows",
+    "Linux",
+    "Técnico de Redes", 
+    "Administrador de Redes", 
+    "Técnico de Comunicaciones",
+    "Técnico de Sistemas y Redes",
+    "Ingeniero de Redes",
+    "Administrador IT",
+    
+    # Títulos en Inglés (comunes en IT)
+    "Network Engineer", 
+    "Network Administrator", 
+    "Network Technician",
+    
+    # Certificaciones/Tecnologías clave que a veces se usan como título
+    "CCNA",
+    "Cisco",
+    "Fortinet"
+]
+
+# Si ves que te salen pocas ofertas en Huelva, añade "Informático" 
+# o "Técnico de Sistemas" a secas, ya que allí el rol suele ser mixto.
+LOCATION = "Madrid, Spain"
 
 PALABRAS_EXCLUIR = [
     "Beca", "Prácticas", "Comercial", "Ventas", 
-    "Programador Web", "Frontend", "Backend", "Junior"
+    "Programador", "Developer", "Frontend", "Backend", "Full Stack",
+    "Electricista", "Peón"
 ]
-
 def enviar_correo(job):
     # Credenciales desde GitHub Secrets
     try:
