@@ -26,7 +26,7 @@ def enviar_correo(job):
     msg['To'] = destinatario
     msg['Subject'] = f"🚀 Nueva Oferta: {job['title']}"
 
-    # Cuerpo del correo (HTML para que quede bonito y con enlaces)
+    # Cuerpo del correo (HTML)
     cuerpo = f"""
     <html>
       <body>
@@ -79,4 +79,24 @@ def buscar_y_enviar():
     print(f"Encontradas {len(jobs)} ofertas. Filtrando...")
     enviadas = 0
 
-    for index, job in jobs.
+    # --- AQUÍ ESTABA EL ERROR, YA CORREGIDO ---
+    for index, job in jobs.iterrows():
+    # ------------------------------------------
+        titulo = str(job['title']).lower()
+        es_valida = True
+
+        for palabra in PALABRAS_EXCLUIR:
+            if palabra.lower() in titulo:
+                es_valida = False
+                print(f"❌ Descartada: {job['title']} (spam)")
+                break
+
+        if es_valida:
+            enviar_correo(job)
+            enviadas += 1
+
+    if enviadas == 0:
+        print("Ninguna oferta pasó el filtro.")
+
+if __name__ == "__main__":
+    buscar_y_enviar()
