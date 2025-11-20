@@ -1,138 +1,52 @@
 import os
 import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from jobspy import scrape_jobs
-import pandas as pd
 
-# --- CONFIGURACIÓN DE BÚSQUEDA ---
-LOCATION = "Huelva, Spain"
-
-KEYWORDS = [
-    "Técnico informático",
-    "Técnico/a informático/a",
-    "Administrador de sistemas informáticos",
-    "Administrador/a de sistemas informáticos",
-    "Técnico de sistemas y redes",
-    "Técnico de soporte informático",
-    "Técnico de soporte microinformático",
-    "Administrador de sistemas",
-    "Windows",
-    "Linux",
-    "Técnico de Redes", 
-    "Administrador de Redes", 
-    "Técnico de Comunicaciones",
-    "Técnico de Sistemas y Redes",
-    "Ingeniero de Redes",
-    "Administrador IT",
+def diagnostico_gmail():
+    print("--- INICIANDO DIAGNÓSTICO DE CONEXIÓN ---")
     
-    # Títulos en Inglés
-    "Network Engineer", 
-    "Network Administrator", 
-    "Network Technician",
-    
-    # Certificaciones/Tecnologías
-    "CCNA",
-    "Cisco",
-    "Fortinet"
-]
-
-# Palabras que si aparecen en el título, DESCARTAN la oferta (Anti-ruido)
-PALABRAS_EXCLUIR = [
-    "Beca", "Prácticas", "Comercial", "Ventas", 
-    "Programador Web", "Frontend", "Backend", "Junior",
-    "Electricista", "Peón" # Evitamos puestos de obra pura
-]
-
-def enviar_correo(job):
-    # Obtener credenciales de la caja fuerte de GitHub
+    # 1. Recuperar secretos
     try:
-        usuario = os.environ["EMAIL_USER"]
-        password = os.environ["EMAIL_PASSWORD"]
+        user = os.environ["EMAIL_USER"]
+        pwd = os.environ["EMAIL_PASSWORD"]
     except KeyError:
-        print("❌ Error: Faltan las credenciales (EMAIL_USER / EMAIL_PASSWORD).")
+        print("❌ ERROR CRÍTICO: GitHub no tiene los secretos guardados.")
         return
 
-    destinatario = usuario 
+    # 2. Analizar el Usuario (EMAIL_USER)
+    print(f"📧 Usuario detectado: '{user}'")
+    if " " in user:
+        print("   ❌ ERROR: Hay espacios en blanco en tu correo. Bórralos en GitHub Secrets.")
+    if "@" not in user:
+        print("   ❌ ERROR: Esto no parece un correo electrónico.")
 
-    # Crear el mensaje
-    msg = MIMEMultipart()
-    msg['From'] = usuario
-    msg['To'] = destinatario
-    msg['Subject'] = f"🚀 Nueva Oferta: {job['title']}"
-
-    # Cuerpo del correo en HTML
-    cuerpo = f"""
-    <html>
-      <body>
-        <h2>Nueva Oportunidad en {LOCATION}</h2>
-        <p><strong>Puesto:</strong> {job['title']}</p>
-        <p><strong>Empresa:</strong> {job['company']}</p>
-        <p><strong>Ubicación:</strong> {job['location']}</p>
-        <p><strong>Fecha:</strong> {job['date_posted']}</p>
-        <br>
-        <a href="{job['job_url']}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
-           VER OFERTA Y APLICAR
-        </a>
-        <br><br>
-        <p style="font-size: small; color: gray;">Bot de Empleo Automático</p>
-      </body>
-    </html>
-    """
-    msg.attach(MIMEText(cuerpo, 'html'))
-
-    # Enviar el correo
+    # 3. Analizar la Contraseña (EMAIL_PASSWORD)
+    longitud = len(pwd)
+    print(f"🔑 Longitud de contraseña: {longitud} caracteres")
+    
+    if longitud > 19: # 16 letras + posibles espacios
+        print("   ⚠️ ADVERTENCIA: La contraseña parece muy larga. ¿Has copiado comillas?")
+    
+    # 4. Prueba de Fuego: Conexión real
+    print("📡 Intentando conectar con los servidores de Google...")
+    
     try:
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
-        server.login(usuario, password)
-        server.sendmail(usuario, destinatario, msg.as_string())
+        print("   ✅ Conexión segura establecida.")
+        
+        server.login(user, pwd)
+        print("   🎉 ¡ÉXITO! CREDENCIALES ACEPTADAS.")
+        print("   ✅ Google ha dejado pasar al bot.")
         server.quit()
-        print(f"📧 Correo enviado para: {job['title']}")
+        
+    except smtplib.SMTPAuthenticationError:
+        print("   ❌ FALLO DE AUTENTICACIÓN (Error 535).")
+        print("      Posibles causas:")
+        print("      1. El correo impreso arriba ('Usuario detectado') tiene una errata.")
+        print("      2. La contraseña de aplicación pertenece a OTRA cuenta de Google diferente.")
+        print("      3. Has copiado un espacio en blanco al final del secreto.")
     except Exception as e:
-        print(f"❌ Error enviando correo: {e}")
-
-def buscar_y_enviar():
-    print(f"🔍 Buscando ofertas en {LOCATION}...")
-    print(f"📋 Palabras clave: {len(KEYWORDS)} términos definidos.")
-
-    try:
-        jobs = scrape_jobs(
-            site_name=["linkedin", "indeed"],
-            search_term=" OR ".join(KEYWORDS),
-            location=LOCATION,
-            results_wanted=10,
-            hours_old=24, # Solo ofertas de las últimas 24 horas
-            country_indeed='spain'
-        )
-    except Exception as e:
-        print(f"Error buscando ofertas: {e}")
-        return
-
-    if jobs is None or jobs.empty:
-        print("✅ No se encontraron ofertas nuevas hoy.")
-        return
-
-    print(f"🔎 Encontradas {len(jobs)} ofertas brutas. Aplicando filtro inteligente...")
-    enviadas = 0
-
-    for index, job in jobs.iterrows():
-        titulo = str(job['title']).lower()
-        es_valida = True
-
-        # Filtro de palabras prohibidas
-        for palabra in PALABRAS_EXCLUIR:
-            if palabra.lower() in titulo:
-                es_valida = False
-                print(f"🗑️ Descartada (Filtro): {job['title']}")
-                break
-
-        if es_valida:
-            enviar_correo(job)
-            enviadas += 1
-
-    if enviadas == 0:
-        print("Ninguna oferta pasó el filtro de exclusión.")
+        print(f"   ❌ Otro error: {e}")
 
 if __name__ == "__main__":
-    buscar_y_enviar()
+    diagnostico_gmail()
