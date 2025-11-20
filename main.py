@@ -16,9 +16,14 @@ PALABRAS_EXCLUIR = [
 
 def enviar_correo(job):
     # Credenciales desde GitHub Secrets
-    usuario = os.environ["EMAIL_USER"]
-    password = os.environ["EMAIL_PASSWORD"]
-    destinatario = usuario # Nos lo enviamos a nosotros mismos
+    try:
+        usuario = os.environ["EMAIL_USER"]
+        password = os.environ["EMAIL_PASSWORD"]
+    except KeyError:
+        print("❌ Error: Faltan las credenciales de correo (EMAIL_USER o EMAIL_PASSWORD).")
+        return
+
+    destinatario = usuario 
 
     # Crear el mensaje
     msg = MIMEMultipart()
@@ -79,9 +84,9 @@ def buscar_y_enviar():
     print(f"Encontradas {len(jobs)} ofertas. Filtrando...")
     enviadas = 0
 
-    # --- AQUÍ ESTABA EL ERROR, YA CORREGIDO ---
+    # --- LÍNEA CORREGIDA ---
     for index, job in jobs.iterrows():
-    # ------------------------------------------
+    # -----------------------
         titulo = str(job['title']).lower()
         es_valida = True
 
