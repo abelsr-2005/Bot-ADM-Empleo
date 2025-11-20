@@ -10,58 +10,41 @@ from datetime import datetime
 LOCATION = "Huelva, Spain"
 
 KEYWORDS = [
-    # --- TÍTULOS CLÁSICOS (Español/Inglés) ---
+    # --- TÍTULOS GENERALES ---
     "Administrador de Sistemas", "System Administrator", "SysAdmin",
-    "Técnico de Sistemas", "Systems Technician",
-    "Ingeniero de Sistemas", "Systems Engineer",
-    "Analista de Sistemas", "System Analyst",
-    "Administrador IT", "IT Administrator",
-    "Responsable de Sistemas", "IT Manager",
-    "Coordinador TI", "IT Coordinator",
-    "Técnico de Infraestructura", "Infrastructure Engineer",
-
-    # --- REDES Y COMUNICACIONES ---
+    "Técnico de Sistemas", "Systems Technician", "Soporte TI",
+    "Ingeniero de Sistemas", "Analista de Sistemas",
+    "Administrador IT", "IT Manager", "Coordinador TI",
+    "Técnico de Infraestructura", "Helpdesk", "Service Desk",
+    "Técnico informático", "Técnico/a informático/a",
+    
+    # --- REDES ---
     "Administrador de Redes", "Network Administrator",
     "Ingeniero de Redes", "Network Engineer",
     "Técnico de Redes", "Network Technician",
-    "Técnico de Comunicaciones",
-    "CCNA", "CCNP", "Cisco", "Fortinet", "Mikrotik", "Palo Alto",
+    "CCNA", "Cisco", "Fortinet", "Mikrotik",
     
-    # --- SOPORTE NIVEL 2/3 (Suelen ser SysAdmins camuflados) ---
-    "Soporte Técnico N2", "Soporte Nivel 2", "Level 2 Support",
-    "Soporte Técnico N3", "Soporte Nivel 3", "Level 3 Support",
-    "Helpdesk Avanzado", "Service Desk Analyst",
-    "Técnico de Campo", "Field Technician", # Muy común en Huelva para dar servicio a varias sedes
-    
-    # --- TECNOLOGÍAS CLAVE (A veces el título es la tecnología) ---
-    "Windows Server", "Active Directory", "Directorio Activo",
-    "Linux", "Red Hat", "Debian", "Ubuntu Server",
-    "Virtualización", "VMware", "Hyper-V", "Citrix",
-    "Office 365", "Microsoft 365", "Exchange",
-    "Azure", "AWS", "Cloud",
-    "Backup", "Veeam",
-    "SQL Server", "Base de Datos"
+    # --- TECNOLOGÍAS ---
+    "Windows Server", "Linux", "Active Directory",
+    "Virtualización", "VMware", "Hyper-V", 
+    "Office 365", "Azure", "AWS", "Cloud",
+    "Técnico de Campo", "Mantenimiento Informático"
 ]
 
+# Filtros (Anti-Ruido y Anti-PRL)
 PALABRAS_EXCLUIR = [
-    # Basura general
     "Beca", "Prácticas", "Comercial", "Ventas", "Sales",
     "Programador", "Developer", "Frontend", "Backend", "Junior",
-    
-    # Oficios y Construcción
     "Construcción", "Obra", "Peón", "Albañil", "Fontanero",
     "Mecánico", "Electromecánico", "Climatización",
     "Producción", "Operador", "Mantenimiento industrial",
-    
-    # Servicios
     "Domicilio", "Ayuda", "Auxiliar", "Enfermero", "Limpieza",
     "Dependiente", "Repartidor", "Mozo", "Conductor",
     "Administrativo", "Recepcionista", "Call Center",
-    
-    # NUEVO: Anti-PRL (Prevención de Riesgos)
     "PRL", "Riesgos", "Preventivo", "Prevención", "Salud", "Laborales"
 ]
-# --- 2. FUNCIÓN DE ENVÍO (UN SOLO CORREO) ---
+
+# --- 2. FUNCIÓN DE ENVÍO ---
 def enviar_resumen_correo(ofertas_html, cantidad):
     try:
         usuario = os.environ["EMAIL_USER"]
@@ -76,23 +59,20 @@ def enviar_resumen_correo(ofertas_html, cantidad):
     msg = MIMEMultipart()
     msg['From'] = usuario
     msg['To'] = destinatario
-    msg['Subject'] = f"🚀 Resumen Diario: {cantidad} Ofertas en {LOCATION} ({fecha_hoy})"
+    msg['Subject'] = f"🚀 Resumen Huelva: {cantidad} Ofertas ({fecha_hoy})"
 
-    # Plantilla HTML del correo completo
     cuerpo = f"""
     <html>
       <body style="font-family: Arial, sans-serif; color: #333;">
         <div style="background-color: #007bff; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-            <h2>Boletín de Empleo - SysAdmin</h2>
-            <p>Hoy hemos encontrado <strong>{cantidad}</strong> ofertas potenciales en {LOCATION}.</p>
+            <h2>Boletín SysAdmin - Huelva</h2>
+            <p>Hoy hemos encontrado <strong>{cantidad}</strong> ofertas potenciales.</p>
         </div>
-        
         <div style="padding: 20px; background-color: #f9f9f9; border: 1px solid #ddd;">
             {ofertas_html}
         </div>
-
         <div style="text-align: center; padding: 20px; font-size: 12px; color: #777;">
-            Bot Automatizado con GitHub Actions
+            Bot Automatizado (Fuentes: LinkedIn, Indeed, Google Jobs)
         </div>
       </body>
     </html>
@@ -114,11 +94,12 @@ def buscar_y_enviar():
     print(f"🔍 Buscando ofertas en {LOCATION}...")
     
     try:
+        # AQUI ESTÁ EL CAMBIO: Añadido "google" para pillar InfoJobs
         jobs = scrape_jobs(
-            site_name=["linkedin", "indeed"],
+            site_name=["linkedin", "indeed", "google"], 
             search_term=" OR ".join(KEYWORDS),
             location=LOCATION,
-            results_wanted=20, # Buscamos bastantes para filtrar luego
+            results_wanted=20,
             hours_old=24, 
             country_indeed='spain'
         )
@@ -127,12 +108,11 @@ def buscar_y_enviar():
         return
 
     if jobs is None or jobs.empty:
-        print("✅ No hay ofertas nuevas hoy. No se envía correo.")
+        print("✅ No hay ofertas nuevas hoy.")
         return
 
-    print(f"🔎 Encontradas {len(jobs)} ofertas brutas. Filtrando y recopilando...")
+    print(f"🔎 Encontradas {len(jobs)} ofertas brutas. Filtrando...")
     
-    # Variable para acumular el HTML de todas las ofertas válidas
     contenido_html_acumulado = ""
     contador_validas = 0
 
@@ -140,7 +120,6 @@ def buscar_y_enviar():
         titulo = str(job['title']).lower()
         es_valida = True
 
-        # Filtro Anti-Ruido
         for palabra in PALABRAS_EXCLUIR:
             if palabra.lower() in titulo:
                 es_valida = False
@@ -148,30 +127,14 @@ def buscar_y_enviar():
                 break
 
         if es_valida:
-            print(f"⭐ Añadida al resumen: {job['title']}")
+            print(f"⭐ Añadida: {job['title']}")
             contador_validas += 1
             
-            # Añadimos esta oferta al bloque HTML
+            # Tarjeta de Oferta
             contenido_html_acumulado += f"""
             <div style="background: white; padding: 15px; margin-bottom: 15px; border-left: 5px solid #28a745; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
                 <h3 style="margin-top: 0; color: #28a745;">{job['title']}</h3>
                 <p><strong>🏢 Empresa:</strong> {job['company']}</p>
                 <p><strong>📍 Ubicación:</strong> {job['location']}</p>
-                <p style="text-align: right;">
-                    <a href="{job['job_url']}" style="background-color: #28a745; color: white; padding: 8px 15px; text-decoration: none; border-radius: 3px; font-weight: bold;">
-                        VER OFERTA 🔗
-                    </a>
-                </p>
-            </div>
-            <hr style="border: 0; border-top: 1px solid #eee;">
-            """
-
-    # --- MOMENTO DE LA VERDAD ---
-    if contador_validas > 0:
-        print(f"🚀 Enviando resumen con {contador_validas} ofertas...")
-        enviar_resumen_correo(contenido_html_acumulado, contador_validas)
-    else:
-        print("🏁 Ninguna oferta pasó el filtro final. No se envía correo.")
-
-if __name__ == "__main__":
-    buscar_y_enviar()
+                <p><strong>📅 Publicado:</strong> {job['date_posted']}</p>
+                <p style="text-align:
