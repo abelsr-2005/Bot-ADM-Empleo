@@ -1,5 +1,7 @@
 import os
-import requests
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from jobspy import scrape_jobs
 import pandas as pd
 
@@ -7,23 +9,63 @@ import pandas as pd
 KEYWORDS = ["Administrador de Sistemas", "System Administrator", "Técnico Sistemas", "Informático", "Soporte TI"]
 LOCATION = "Huelva, Spain"
 
-# Palabras que si aparecen en el título, DESCARTAN la oferta
 PALABRAS_EXCLUIR = [
     "Beca", "Prácticas", "Comercial", "Ventas", 
     "Programador Web", "Frontend", "Backend", "Junior"
 ]
 
+def enviar_correo(job):
+    # Credenciales desde GitHub Secrets
+    usuario = os.environ["EMAIL_USER"]
+    password = os.environ["EMAIL_PASSWORD"]
+    destinatario = usuario # Nos lo enviamos a nosotros mismos
+
+    # Crear el mensaje
+    msg = MIMEMultipart()
+    msg['From'] = usuario
+    msg['To'] = destinatario
+    msg['Subject'] = f"🚀 Nueva Oferta: {job['title']}"
+
+    # Cuerpo del correo (HTML para que quede bonito y con enlaces)
+    cuerpo = f"""
+    <html>
+      <body>
+        <h2>Nueva Oportunidad Detectada</h2>
+        <p><strong>Puesto:</strong> {job['title']}</p>
+        <p><strong>Empresa:</strong> {job['company']}</p>
+        <p><strong>Ubicación:</strong> {job['location']}</p>
+        <br>
+        <a href="{job['job_url']}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+           VER OFERTA Y APLICAR
+        </a>
+        <br><br>
+        <p style="font-size: small; color: gray;">Bot de Empleo Huelva - SysAdmin</p>
+      </body>
+    </html>
+    """
+    msg.attach(MIMEText(cuerpo, 'html'))
+
+    # Enviar
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(usuario, password)
+        server.sendmail(usuario, destinatario, msg.as_string())
+        server.quit()
+        print(f"📧 Correo enviado para: {job['title']}")
+    except Exception as e:
+        print(f"❌ Error enviando correo: {e}")
+
 def buscar_y_enviar():
     print(f"🔍 Buscando ofertas en {LOCATION}...")
 
     try:
-        # Buscamos en LinkedIn e Indeed
         jobs = scrape_jobs(
             site_name=["linkedin", "indeed"],
             search_term=" OR ".join(KEYWORDS),
             location=LOCATION,
             results_wanted=10,
-            hours_old=24, # Solo últimas 24 horas
+            hours_old=24, 
             country_indeed='es'
         )
     except Exception as e:
@@ -35,44 +77,6 @@ def buscar_y_enviar():
         return
 
     print(f"Encontradas {len(jobs)} ofertas. Filtrando...")
-
-    # --- AQUÍ ESTÁ LA CORRECCIÓN ---
-    # Pedimos el NOMBRE de la variable, GitHub pondrá el valor mágicamente
-    token = os.environ["TELEGRAM_TOKEN"]
-    chat_id = os.environ["TELEGRAM_CHAT_ID"]
-    # -------------------------------
-    
     enviadas = 0
 
-    for index, job in jobs.iterrows():
-        titulo = str(job['title']).lower()
-        es_valida = True
-
-        # Filtro de palabras prohibidas
-        for palabra in PALABRAS_EXCLUIR:
-            if palabra.lower() in titulo:
-                es_valida = False
-                print(f"❌ Descartada: {job['title']} (Contiene '{palabra}')")
-                break
-
-        if es_valida:
-            print(f"✅ Enviando: {job['title']}")
-            mensaje = (
-                f"🔔 **Nueva Oferta SysAdmin**\n\n"
-                f"💼 **Puesto:** {job['title']}\n"
-                f"🏢 **Empresa:** {job['company']}\n"
-                f"📍 **Ubicación:** {job['location']}\n"
-                f"🔗 [Ver Oferta]({job['job_url']})"
-            )
-            # Enviar a Telegram
-            requests.post(
-                f"https://api.telegram.org/bot{token}/sendMessage",
-                data={"chat_id": chat_id, "text": mensaje, "parse_mode": "Markdown"}
-            )
-            enviadas += 1
-
-    if enviadas == 0:
-        print("Ninguna oferta pasó el filtro de palabras.")
-
-if __name__ == "__main__":
-    buscar_y_enviar()
+    for index, job in jobs.
