@@ -94,7 +94,7 @@ def buscar_y_enviar():
     print(f"🔍 Buscando ofertas en {LOCATION}...")
     
     try:
-        # AQUI ESTÁ EL CAMBIO: Añadido "google" para pillar InfoJobs
+        # Añadido "google" para pillar InfoJobs
         jobs = scrape_jobs(
             site_name=["linkedin", "indeed", "google"], 
             search_term=" OR ".join(KEYWORDS),
@@ -130,11 +130,26 @@ def buscar_y_enviar():
             print(f"⭐ Añadida: {job['title']}")
             contador_validas += 1
             
-            # Tarjeta de Oferta
+            # Tarjeta de Oferta HTML
             contenido_html_acumulado += f"""
             <div style="background: white; padding: 15px; margin-bottom: 15px; border-left: 5px solid #28a745; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
                 <h3 style="margin-top: 0; color: #28a745;">{job['title']}</h3>
                 <p><strong>🏢 Empresa:</strong> {job['company']}</p>
                 <p><strong>📍 Ubicación:</strong> {job['location']}</p>
                 <p><strong>📅 Publicado:</strong> {job['date_posted']}</p>
-                <p style="text-align:
+                <p style="text-align: right;">
+                    <a href="{job['job_url']}" style="background-color: #28a745; color: white; padding: 8px 15px; text-decoration: none; border-radius: 3px; font-weight: bold;">
+                        VER ENLACE 🔗
+                    </a>
+                </p>
+            </div>
+            <hr style="border: 0; border-top: 1px solid #eee;">
+            """
+
+    if contador_validas > 0:
+        enviar_resumen_correo(contenido_html_acumulado, contador_validas)
+    else:
+        print("🏁 Ninguna oferta pasó el filtro final.")
+
+if __name__ == "__main__":
+    buscar_y_enviar()
