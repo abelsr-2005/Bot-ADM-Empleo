@@ -21,17 +21,25 @@ KEYWORDS = [
 ]
 
 # Filtros de exclusión (Actualizados con tu feedback)
+# Filtros de exclusión (Refinado: Anti-PRL)
 PALABRAS_EXCLUIR = [
+    # Basura general
     "Beca", "Prácticas", "Comercial", "Ventas", "Sales",
     "Programador", "Developer", "Frontend", "Backend", "Junior",
+    
+    # Oficios y Construcción
     "Construcción", "Obra", "Peón", "Albañil", "Fontanero",
     "Mecánico", "Electromecánico", "Climatización",
     "Producción", "Operador", "Mantenimiento industrial",
+    
+    # Servicios
     "Domicilio", "Ayuda", "Auxiliar", "Enfermero", "Limpieza",
     "Dependiente", "Repartidor", "Mozo", "Conductor",
-    "Administrativo", "Recepcionista", "Call Center"
+    "Administrativo", "Recepcionista", "Call Center",
+    
+    # NUEVO: Anti-PRL (Prevención de Riesgos)
+    "PRL", "Riesgos", "Preventivo", "Prevención", "Salud", "Laborales"
 ]
-
 # --- 2. FUNCIÓN DE ENVÍO (UN SOLO CORREO) ---
 def enviar_resumen_correo(ofertas_html, cantidad):
     try:
