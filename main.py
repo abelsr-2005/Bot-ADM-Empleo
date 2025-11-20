@@ -71,7 +71,7 @@ def buscar_y_enviar():
             location=LOCATION,
             results_wanted=10,
             hours_old=24, 
-            country_indeed='es'
+            country_indeed='spain'
         )
     except Exception as e:
         print(f"Error buscando ofertas: {e}")
