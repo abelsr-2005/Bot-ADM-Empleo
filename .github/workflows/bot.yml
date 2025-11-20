@@ -1,10 +1,9 @@
-name: Buscador Diario
+name: Buscador Diario Email
 
 on:
   schedule:
-    # Se ejecuta a las 8:00 AM UTC (9:00 AM en España)
     - cron: '0 8 * * *'
-  workflow_dispatch: # Botón para ejecutar manualmente
+  workflow_dispatch:
 
 jobs:
   buscar:
@@ -23,6 +22,7 @@ jobs:
 
       - name: Ejecutar Bot
         env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # Ahora usamos las claves de EMAIL
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
         run: python main.py
