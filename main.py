@@ -25,11 +25,16 @@ KEYWORDS = [
     "CCNA", "Cisco", "Fortinet"
 ]
 
-# Palabras para descartar basura
 PALABRAS_EXCLUIR = [
-    "Beca", "Prácticas", "Comercial", "Ventas", 
+    # Filtros básicos anteriores
+    "Beca", "Prácticas", "Comercial", "Ventas", "Sales",
     "Programador Web", "Frontend", "Backend", "Junior",
-    "Electricista", "Peón"
+    "Construcción", "Obra", "Peón", "Albañil", "Fontanero",
+    "Mecánico", "Electromecánico", "Climatización",
+    "Producción", "Operador de producción", "Mantenimiento industrial",
+    "Domicilio", "Ayuda", "Auxiliar", "Enfermero", "Limpieza",
+    "Dependiente", "Repartidor", "Mozo", "Conductor",
+    "Administrativo", "Recepcionista"
 ]
 
 # --- 2. FUNCIÓN DE ENVÍO DE CORREO ---
